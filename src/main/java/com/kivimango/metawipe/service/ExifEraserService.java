@@ -14,17 +14,17 @@ import java.io.IOException;
 public interface ExifEraserService {
 
     /**
+     * Deletes EXIF data from supported files found in the directory and its subdirectories recursively.
+     * @param dir Reference of the directory
+     */
+
+    void directory(final File dir) throws IOException;
+
+    /**
      * Deletes EXIF data from one particular file.
      * @param file Reference of the file.
      * @return true on success deleting
      */
 
     boolean file(final File file) throws IOException, ImageWriteException, ImageReadException, NotAFileException;
-
-    /**
-     * Deletes EXIF data from supported files found in the directory and its subdirectories recursively.
-     * @param dir Reference of the directory
-     */
-
-    void directory(final File dir) throws IOException, ImageWriteException, NotAFileException, ImageReadException;
 }
