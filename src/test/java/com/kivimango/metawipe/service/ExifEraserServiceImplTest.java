@@ -28,8 +28,8 @@ public final class ExifEraserServiceImplTest {
 
     private final String currentdir = this.getClass().getClassLoader().getResource("").getFile();
     private final ExifEraserServiceImpl service = new ExifEraserServiceImpl();
-    private final File original = new File(getClass().getClassLoader().getResource("picture.jpg").getFile());
-    private File testFile;
+    private final Path original = Paths.get((getClass().getClassLoader().getResource("picture.jpg")).getFile());
+    private Path testFile;
 
     /**
      * Making a copy of a test file with existing exif data to able to run the unit tests anytime
@@ -39,24 +39,24 @@ public final class ExifEraserServiceImplTest {
 
     @Before
     public void setup() throws IOException {
-        testFile = new File(service.makeCopy(original));
-        Files.deleteIfExists(testFile.toPath());
-        Files.copy(Paths.get(original.getAbsolutePath()), Paths.get(testFile.getAbsolutePath()));
+        testFile = service.makeCopy(original);
+        Files.deleteIfExists(testFile);
+        Files.copy(original, testFile);
     }
 
     @After
     public void teardown() throws IOException {
-        Files.deleteIfExists(testFile.toPath());
+        Files.deleteIfExists(testFile);
         testFile = null;
     }
 
     @Test
     public void testMakeCopyShouldCopyFileAndRename() throws IOException {
-        File copiedFile = new File(service.makeCopy(original));
-        assertTrue(copiedFile.exists());
-        assertThat(copiedFile.getName(), containsString("_copy"));
+        Path copiedFile = service.makeCopy(original);
+        assertTrue(Files.exists(copiedFile));
+        assertThat(copiedFile.getFileName().toString(), containsString("_copy"));
         // clean up after test
-        Files.delete(copiedFile.toPath());
+        Files.delete(copiedFile);
     }
 
     @Test
@@ -66,24 +66,24 @@ public final class ExifEraserServiceImplTest {
 
     @Test(expected = NotAFileException.class)
     public void testNotAFileShouldThrowExceptionOnDirectories() throws ImageWriteException, NotAFileException, ImageReadException, IOException {
-       service.file(new File("/"));
+       service.file(Paths.get("/"));
     }
 
     @Test(expected = ImageReadException.class)
     public void testNotSupportedFileShouldThrowException() throws ImageWriteException, NotAFileException, ImageReadException, IOException {
-        File textFile = new File(this.getClass().getClassLoader().getResource("not-supported.txt").getFile());
+        Path textFile = Paths.get(this.getClass().getClassLoader().getResource("not-supported.txt").getFile());
         service.file(textFile);
     }
 
     @Test(expected = ImageReadException.class)
     public void testFakeImageFileShouldThrowException() throws ImageWriteException, NotAFileException, ImageReadException, IOException {
-        File fakeJpeg = new File(this.getClass().getClassLoader().getResource("fake-image.jpg").getFile());
+        Path fakeJpeg = Paths.get(this.getClass().getClassLoader().getResource("fake-image.jpg").getFile());
         service.file(fakeJpeg);
     }
 
     @Test
     public void testDirShouldRecursivelyDeleteExifDataInSupportedFiles() throws ImageWriteException, NotAFileException, ImageReadException, IOException {
-        Path pathToTestDir = Paths.get(currentdir + "//test-dir-examples//test-dirrrrr//");
+        Path pathToTestDir = Paths.get(currentdir + "//test-dir-examples//test-dir//");
         // Delete temporary files from the previous unit test
         if(Files.exists(pathToTestDir)) {
             deleteDirectoryWithFilesRecursively(pathToTestDir);
@@ -102,13 +102,13 @@ public final class ExifEraserServiceImplTest {
         Path copyOfTestFile2 = Files.copy(testFile2.toPath(), Paths.get(pathToTestDir.toString() + "//foto_exif.jpeg"), options);
         Path copyOfTestFile3 = Files.copy(testFile3.toPath(), Paths.get(pathToTestDir.toString() + "//original2.jpg"), options);
 
-        service.directory(pathToTestDir.toFile());
+        service.directory(pathToTestDir);
 
-        assertTrue(service.checkExifDeleted(copyOfTestFile1.toFile()));
-        assertTrue(service.checkExifDeleted(copyOfTestFile2.toFile()));
-        assertTrue(service.checkExifDeleted(copyOfTestFile3.toFile()));
+        assertTrue(service.checkExifDeleted(copyOfTestFile1));
+        assertTrue(service.checkExifDeleted(copyOfTestFile2));
+        assertTrue(service.checkExifDeleted(copyOfTestFile3));
 
-        //clean up
+        // clean up
         Files.deleteIfExists(copyOfTestFile1);
         Files.deleteIfExists(copyOfTestFile2);
         Files.deleteIfExists(copyOfTestFile3);

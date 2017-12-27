@@ -2,7 +2,6 @@ package com.kivimango.metawipe;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.Assertion;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 import static org.hamcrest.core.StringContains.containsString;
@@ -14,7 +13,7 @@ import static org.junit.Assert.assertThat;
  * @since 0.1
  */
 
-public class MetaWipeTest {
+public final class MetaWipeTest {
 
     @Rule
     public final SystemOutRule output = new SystemOutRule().enableLog().mute();
@@ -33,14 +32,17 @@ public class MetaWipeTest {
     }
 
     @Test
-    public void testErrorMessageShouldDisplayOnEmittedPath() {
-        exit.expectSystemExitWithStatus(2);
-        exit.checkAssertionAfterwards(() -> assertThat(output.getLog(), containsString("File not found")));
+    public void testFileArgumentShouldDisplayUsageOnEmittedPath() {
+        exit.expectSystemExitWithStatus(1);
+        exit.checkAssertionAfterwards(() -> {
+            assertThat(output.getLog(), containsString("You must supply a path !"));
+            assertThat(output.getLog(), containsString("usage"));
+        });
         MetaWipe.main(new String[] {"-f", ""});
     }
 
     @Test
-    public void testFileArgumentNullShouldDisplayUsage() {
+    public void testFileArgumentOnNonExistentFileShouldDisplayUsage() {
         exit.expectSystemExitWithStatus(2);
         exit.checkAssertionAfterwards(() -> {
             assertThat(output.getLog(), containsString("File not found"));
@@ -61,19 +63,16 @@ public class MetaWipeTest {
     }
 
     @Test
-    public void testShouldDisplayUsageOnFileAndDirArguments() {
-        exit.expectSystemExitWithStatus(1);
-        exit.checkAssertionAfterwards(() -> {
-            assertThat(output.getLog(), containsString("Invalid parameters"));
-            assertThat(output.getLog(), containsString("usage"));
-        });
+    public void testShouldDisplayInfoOnFileAndDirArguments() {
         MetaWipe.main(new String[] {"-f", "-d"});
+        assertThat(output.getLog(), containsString("metawipe"));
+        assertThat(output.getLog(), containsString("Version"));
     }
 
     @Test
-    public void testErrorMessageShouldDisplayOnDirArgument() {
-        exit.expectSystemExitWithStatus(2);
-        exit.checkAssertionAfterwards(() -> assertThat(output.getLog(), containsString("Directory not found")));
+    public void testDirArgumentErrorMessageShouldDisplayOnEmittedPath() {
+        exit.expectSystemExitWithStatus(1);
+        exit.checkAssertionAfterwards(() -> assertThat(output.getLog(), containsString("You must supply a path")));
         MetaWipe.main(new String[] {"-d", ""});
     }
 
@@ -89,13 +88,10 @@ public class MetaWipeTest {
     }
 
     @Test
-    public void testShouldDisplayUsageOnDirAndFileArguments() {
-        exit.expectSystemExitWithStatus(1);
-        exit.checkAssertionAfterwards(() -> {
-            assertThat(output.getLog(), containsString("Invalid parameters"));
-            assertThat(output.getLog(), containsString("usage"));
-        });
+    public void testShouldDisplayInfoOnDirAndFileArguments() {
         MetaWipe.main(new String[] {"-d", "-f"});
+        assertThat(output.getLog(), containsString("metawipe"));
+        assertThat(output.getLog(), containsString("Version"));
     }
 
     @Test

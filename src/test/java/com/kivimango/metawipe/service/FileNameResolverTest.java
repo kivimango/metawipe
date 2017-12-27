@@ -1,7 +1,8 @@
 package com.kivimango.metawipe.service;
 
 import org.junit.Test;
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -16,7 +17,7 @@ public final class FileNameResolverTest {
 
     @Test
     public void testGetFilePathShouldReturnOnlyTheAbloslutePathWithoutNameAndExtension() {
-        File f = new File(path);
+        Path f = Paths.get(path);
         String expected = "/home/user/downloads";
         assertEquals(expected, FileNameResolver.getFilePath(f));
     }
@@ -24,7 +25,7 @@ public final class FileNameResolverTest {
     @Test
     public void testGetFilePathWithRootDirectoryShouldReturnEmptyString() {
         String fsRoot = "/";
-        File f = new File(fsRoot);
+        Path f = Paths.get(fsRoot);
         String expected = "";
         assertEquals(expected, FileNameResolver.getFilePath(f));
     }
@@ -32,21 +33,21 @@ public final class FileNameResolverTest {
     @Test
     public void testGetFilePathWithDirectoryShouldReturnEmptyString() {
         String directory = "/home/";
-        File f = new File(directory);
+        Path f = Paths.get(directory);
         String expected = "";
         assertEquals(expected, FileNameResolver.getFilePath(f));
     }
 
     @Test
     public void testGetFileNameWithoutExtension() {
-        File f = new File(path);
+        Path f = Paths.get(path);
         String expected = "picture";
         assertEquals(expected, FileNameResolver.getFileNameWithoutExtension(f));
     }
 
     @Test
     public void testGetExtensionShouldReturnOnlyTheFileExtensionPeriodExcluded() {
-        File f = new File(path);
+        Path f = Paths.get(path);
         String expected = "jpg";
         assertEquals(expected, FileNameResolver.getExtension(f));
     }
@@ -54,7 +55,7 @@ public final class FileNameResolverTest {
     @Test
     public void testGetExtensionMultipleDotsInFileNameShouldReturnOnlyTheFileExtensionPeriodExcluded() {
         String complicatedPath = "/home/user/picture.jpg.bak";
-        File f = new File(complicatedPath);
+        Path f = Paths.get(complicatedPath);
         String expected = "bak";
         assertEquals(expected, FileNameResolver.getExtension(f));
     }
