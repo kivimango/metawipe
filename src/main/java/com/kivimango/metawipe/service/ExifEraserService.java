@@ -2,8 +2,8 @@ package com.kivimango.metawipe.service;
 
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.ImageWriteException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * @author kivimango
@@ -18,7 +18,7 @@ public interface ExifEraserService {
      * @param dir Reference of the directory
      */
 
-    void directory(final File dir) throws IOException;
+    void directory(final Path dir) throws IOException;
 
     /**
      * Deletes EXIF data from one particular file.
@@ -26,5 +26,5 @@ public interface ExifEraserService {
      * @return true on success deleting
      */
 
-    boolean file(final File file) throws IOException, ImageWriteException, ImageReadException, NotAFileException;
+    boolean file(final Path file) throws IOException, ImageWriteException, ImageReadException, NotAFileException;
 }

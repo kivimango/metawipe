@@ -15,6 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * @author kivimango
@@ -25,14 +28,15 @@ import java.nio.file.Paths;
 public final class ExifEraserServiceImpl implements ExifEraserService {
 
     private final ExifRewriter rewriter = new ExifRewriter();
+    private final List<String> supportedFormats = Arrays.asList("jpg", "jpeg", "tiff");
 
     @Override
-    public final void directory(final File dir) throws IOException {
-        if(!dir.exists()) throw new FileNotFoundException();
-        if(!dir.isDirectory()) {
-            throw new NotDirectoryException(dir.getAbsolutePath());
+    public final void directory(final Path dir) throws IOException {
+        if(!Files.exists(dir)) throw new FileNotFoundException();
+        if(!Files.isDirectory(dir)) {
+            throw new NotDirectoryException(dir.toString());
         } else {
-            Files.walkFileTree(dir.toPath(), new RecursiveDirectoryWalker(this));
+            Files.walkFileTree(dir, new RecursiveDirectoryWalker(this));
         }
     }
 
@@ -43,34 +47,45 @@ public final class ExifEraserServiceImpl implements ExifEraserService {
      */
 
     @Override
-    public final boolean file(final File file) throws IOException, ImageWriteException, ImageReadException, NotAFileException {
-        if(!file.exists()) throw new FileNotFoundException();
-        if(!file.isFile()) throw new NotAFileException();
-        final File copiedFile = new File(makeCopy(file));
-        deleteExifMetaData(file, copiedFile);
-        if(!copiedFile.renameTo(file)) Files.deleteIfExists(copiedFile.toPath());
+    public final boolean file(final Path file) throws IOException, ImageWriteException, ImageReadException, NotAFileException {
+        if(!Files.exists(file)) throw new FileNotFoundException();
+        if(Files.isDirectory(file)) throw new NotAFileException();
+        if(supportedFormats.contains(FileNameResolver.getExtension(file))) {
+            final Path copiedFile = makeCopy(file);
+            deleteExifMetaData(file, copiedFile);
+            Files.move(copiedFile, file, REPLACE_EXISTING);
+        }
         return checkExifDeleted(file);
     }
 
-    private void deleteExifMetaData(File f, File copy) throws IOException, ImageWriteException, ImageReadException {
-        try (FileOutputStream fos = new FileOutputStream(copy); OutputStream os = new BufferedOutputStream(fos)) {
-            rewriter.removeExifMetadata(f, os);
+    private void deleteExifMetaData(final Path f, final Path copy) throws IOException, ImageWriteException, ImageReadException {
+        try (FileOutputStream fos = new FileOutputStream(copy.toFile()); OutputStream os = new BufferedOutputStream(fos)) {
+            try{
+                rewriter.removeExifMetadata(f.toFile(), os);
+                /* During deleting, exceptions may occur.
+                In this case, we have to delete the copy of the original file */
+            } catch (ImageReadException e) {
+                Files.deleteIfExists(copy);
+                throw new ImageReadException(e.getMessage(), e);
+            } catch (ImageWriteException e) {
+                Files.deleteIfExists(copy);
+                throw new ImageWriteException(e.getMessage(), e);
+            }
         }
     }
 
-    String makeCopy(File original) throws IOException {
-        String tempFileName = FileNameResolver.getFilePath(original) + File.separator +
+    Path makeCopy(final Path original) throws IOException {
+        final String tempFileName = FileNameResolver.getFilePath(original) + File.separator +
                 FileNameResolver.getFileNameWithoutExtension(original) + "_copy." + FileNameResolver.getExtension(original);
-        Path originalFilePath = Paths.get(original.toString());
-        Path copiedFilePath = Paths.get(tempFileName);
+        final Path copiedFilePath = Paths.get(tempFileName);
         if(Files.exists(copiedFilePath)) { Files.deleteIfExists(copiedFilePath); }
-        Files.copy(originalFilePath, copiedFilePath);
-        return copiedFilePath.toString();
+        Files.copy(original, copiedFilePath);
+        return copiedFilePath;
     }
 
-    boolean checkExifDeleted(File f) throws IOException, ImageReadException {
-        // Sometimes metadata is null
-        final IImageMetadata metadata = Imaging.getMetadata(f);
+    boolean checkExifDeleted(final Path f) throws IOException, ImageReadException {
+        // Sometimes metadata is null even if the exif records deleted
+        final IImageMetadata metadata = Imaging.getMetadata(f.toFile());
         return metadata == null || metadata.toString().contains("No Exif metadata.");
     }
 

@@ -1,6 +1,7 @@
 package com.kivimango.metawipe.service;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * @author kivimango
@@ -10,15 +11,15 @@ import java.io.File;
 
 final class FileNameResolver {
 
-    static String getFilePath(File file) {
-        String absolutePath = file.getAbsolutePath();
+    static String getFilePath(final Path file) {
+        String absolutePath = file.toAbsolutePath().toString();
         return absolutePath.substring(0,absolutePath.lastIndexOf(File.separator));
     }
 
     // TODO : duplicate code
 
-    static String getFileNameWithoutExtension(File file) {
-        String fileName = file.getName();
+    static String getFileNameWithoutExtension(final Path file) {
+        String fileName = file.getFileName().toString();
         int pos = fileName.lastIndexOf(".");
         if (pos > 0) {
             fileName = fileName.substring(0, pos);
@@ -26,8 +27,8 @@ final class FileNameResolver {
         return fileName;
     }
 
-    static String getExtension(File file) {
-        String fileName = file.getName();
+    static String getExtension(final Path file) {
+        String fileName = file.getFileName().toString();
         int pos = fileName.lastIndexOf(".");
         if (pos > 0) {
             fileName = fileName.substring(pos + 1);
