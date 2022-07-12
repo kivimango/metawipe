@@ -4,8 +4,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 import org.junit.contrib.java.lang.system.SystemOutRule;
+
+import java.util.Objects;
+
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author kivimango
@@ -58,7 +61,7 @@ public final class MetaWipeTest {
             assertThat(output.getLog(), containsString("This is not a file"));
             assertThat(output.getLog(), containsString("usage"));
         });
-        String testDir = this.getClass().getClassLoader().getResource("").getFile();
+        String testDir = Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).getFile();
         MetaWipe.main(new String[] {"-f", testDir});
     }
 
@@ -83,7 +86,7 @@ public final class MetaWipeTest {
             assertThat(output.getLog(), containsString("This is not a directory"));
             assertThat(output.getLog(), containsString("usage"));
         });
-        String testFile = this.getClass().getClassLoader().getResource("not-supported.txt").getFile();
+        String testFile = Objects.requireNonNull(this.getClass().getClassLoader().getResource("not-supported.txt")).getFile();
         MetaWipe.main(new String[] {"-d", testFile});
     }
 
