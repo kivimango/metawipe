@@ -14,8 +14,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
+import java.util.Objects;
+
 import static org.hamcrest.core.StringContains.containsString;
-//import static org.junit.Assert.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -27,9 +28,9 @@ import static org.junit.Assert.assertTrue;
 
 public final class ExifEraserServiceImplTest {
 
-    private final String currentdir = this.getClass().getClassLoader().getResource("").getFile();
+    private final String currentDir = Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).getFile();
     private final ExifEraserServiceImpl service = new ExifEraserServiceImpl();
-    private final Path original = Paths.get((getClass().getClassLoader().getResource("picture.jpg")).getFile());
+    private final Path original = Paths.get((Objects.requireNonNull(getClass().getClassLoader().getResource("picture.jpg"))).getFile());
     private Path testFile;
 
     /**
@@ -72,19 +73,19 @@ public final class ExifEraserServiceImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testNotSupportedFileShouldThrowException() throws IllegalArgumentException, ImageWriteException, NotAFileException, ImageReadException, IOException {
-        Path textFile = Paths.get(this.getClass().getClassLoader().getResource("not-supported.txt").getFile());
+        Path textFile = Paths.get(Objects.requireNonNull(this.getClass().getClassLoader().getResource("not-supported.txt")).getFile());
         service.file(textFile);
     }
 
     @Test(expected = ImageReadException.class)
     public void testFakeImageFileShouldThrowException() throws ImageWriteException, NotAFileException, ImageReadException, IOException {
-        Path fakeJpeg = Paths.get(this.getClass().getClassLoader().getResource("fake-image.jpg").getFile());
+        Path fakeJpeg = Paths.get(Objects.requireNonNull(this.getClass().getClassLoader().getResource("fake-image.jpg")).getFile());
         service.file(fakeJpeg);
     }
 
     @Test
-    public void testDirShouldRecursivelyDeleteExifDataInSupportedFiles() throws ImageWriteException, NotAFileException, ImageReadException, IOException {
-        Path pathToTestDir = Paths.get(currentdir + "//test-dir-examples//test-dir//");
+    public void testDirShouldRecursivelyDeleteExifDataInSupportedFiles() throws ImageReadException, IOException {
+        Path pathToTestDir = Paths.get(currentDir + "//test-dir-examples//test-dir//");
         // Delete temporary files from the previous unit test
         if(Files.exists(pathToTestDir)) {
             deleteDirectoryWithFilesRecursively(pathToTestDir);
@@ -93,15 +94,15 @@ public final class ExifEraserServiceImplTest {
         // Creating a temporary dir to test against
         Files.createDirectory(pathToTestDir);
 
-        File testFile1 = new File(currentdir + "//test-dir-examples//769474.jpg");
-        File testFile2 = new File(currentdir + "//test-dir-examples//foto_exif.jpeg");
-        File testFile3 = new File(currentdir + "/test-dir-examples//original2.jpg");
+        File testFile1 = new File(currentDir + "//test-dir-examples//769474.jpg");
+        File testFile2 = new File(currentDir + "//test-dir-examples//foto_exif.jpeg");
+        File testFile3 = new File(currentDir + "/test-dir-examples//original2.jpg");
 
         // Copying test files into the temp dir
         CopyOption[] options = new CopyOption[]{StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES};
-        Path copyOfTestFile1 = Files.copy(testFile1.toPath(), Paths.get(pathToTestDir.toString() + "//769474.jpg"), options);
-        Path copyOfTestFile2 = Files.copy(testFile2.toPath(), Paths.get(pathToTestDir.toString() + "//foto_exif.jpeg"), options);
-        Path copyOfTestFile3 = Files.copy(testFile3.toPath(), Paths.get(pathToTestDir.toString() + "//original2.jpg"), options);
+        Path copyOfTestFile1 = Files.copy(testFile1.toPath(), Paths.get(pathToTestDir + "//769474.jpg"), options);
+        Path copyOfTestFile2 = Files.copy(testFile2.toPath(), Paths.get(pathToTestDir + "//foto_exif.jpeg"), options);
+        Path copyOfTestFile3 = Files.copy(testFile3.toPath(), Paths.get(pathToTestDir + "//original2.jpg"), options);
 
         service.directory(pathToTestDir);
 
@@ -116,7 +117,7 @@ public final class ExifEraserServiceImplTest {
     }
 
     @Test(expected = NotDirectoryException.class)
-    public void testDirectoryShouldThrowExceptionOnFile() throws ImageWriteException, NotAFileException, ImageReadException, IOException {
+    public void testDirectoryShouldThrowExceptionOnFile() throws IOException {
         service.directory(testFile);
     }
 
