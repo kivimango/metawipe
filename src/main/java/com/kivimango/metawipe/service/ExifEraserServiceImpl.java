@@ -47,7 +47,7 @@ public final class ExifEraserServiceImpl implements ExifEraserService {
      */
 
     @Override
-    public boolean file(final Path file) throws IOException, ImageWriteException, ImageReadException, NotAFileException {
+    public boolean file(final Path file) throws IllegalArgumentException, IOException, ImageWriteException, ImageReadException, NotAFileException {
         if(!Files.exists(file)) throw new FileNotFoundException();
         if(Files.isDirectory(file)) throw new NotAFileException();
         if(supportedFormats.contains(FileNameResolver.getExtension(file))) {
