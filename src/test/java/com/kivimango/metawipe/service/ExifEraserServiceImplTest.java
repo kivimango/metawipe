@@ -15,7 +15,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
+//import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -69,8 +70,8 @@ public final class ExifEraserServiceImplTest {
        service.file(Paths.get("/"));
     }
 
-    @Test(expected = ImageReadException.class)
-    public void testNotSupportedFileShouldThrowException() throws ImageWriteException, NotAFileException, ImageReadException, IOException {
+    @Test(expected = IllegalArgumentException.class)
+    public void testNotSupportedFileShouldThrowException() throws IllegalArgumentException, ImageWriteException, NotAFileException, ImageReadException, IOException {
         Path textFile = Paths.get(this.getClass().getClassLoader().getResource("not-supported.txt").getFile());
         service.file(textFile);
     }
