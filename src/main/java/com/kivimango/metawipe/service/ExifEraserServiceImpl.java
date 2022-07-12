@@ -3,7 +3,7 @@ package com.kivimango.metawipe.service;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.ImageWriteException;
 import org.apache.commons.imaging.Imaging;
-import org.apache.commons.imaging.common.IImageMetadata;
+import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.exif.ExifRewriter;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -31,7 +31,7 @@ public final class ExifEraserServiceImpl implements ExifEraserService {
     private final List<String> supportedFormats = Arrays.asList("jpg", "jpeg", "tiff");
 
     @Override
-    public final void directory(final Path dir) throws IOException {
+    public void directory(final Path dir) throws IOException {
         if(!Files.exists(dir)) throw new FileNotFoundException();
         if(!Files.isDirectory(dir)) {
             throw new NotDirectoryException(dir.toString());
@@ -42,12 +42,12 @@ public final class ExifEraserServiceImpl implements ExifEraserService {
 
     /**
      * Before deleting exif data of the image, we have to make a copy of it.
-     * Otherwise Imaging library will throw an EOF exception if we want to read and write to the same file.
+     * Otherwise, Imaging library will throw an EOF exception if we want to read and write to the same file.
      * After successful deletion, the copy gets renamed to the original file, and the original file will be overridden.
      */
 
     @Override
-    public final boolean file(final Path file) throws IOException, ImageWriteException, ImageReadException, NotAFileException {
+    public boolean file(final Path file) throws IOException, ImageWriteException, ImageReadException, NotAFileException {
         if(!Files.exists(file)) throw new FileNotFoundException();
         if(Files.isDirectory(file)) throw new NotAFileException();
         if(supportedFormats.contains(FileNameResolver.getExtension(file))) {
@@ -85,7 +85,7 @@ public final class ExifEraserServiceImpl implements ExifEraserService {
 
     boolean checkExifDeleted(final Path f) throws IOException, ImageReadException {
         // Sometimes metadata is null even if the exif records deleted
-        final IImageMetadata metadata = Imaging.getMetadata(f.toFile());
+        final ImageMetadata metadata = Imaging.getMetadata(f.toFile());
         return metadata == null || metadata.toString().contains("No Exif metadata.");
     }
 
