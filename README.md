@@ -14,13 +14,13 @@ It is useful before uploading photos to cloud like Facebook, Google, etc if you 
 You need at least Java JRE 1.8 to run this software.
 
 ## Usage
-* Navgiate to the folder containing the metawipe.jar file
+* Navigate to the folder containing the metawipe.jar file
 * Open a terminal in this folder
 * type _java -jar metawipe.jar <args>_
 
 _<args>_ can be :
  - ***-f*** : Clears metadata of one particular file.
- Note: Nothing is written on the console after succesful operation (and the   program returns 0).
+ Note: Nothing is written on the console after successful operation (and the   program returns 0).
 Error messages still displayed.
  Example: ```java -jar metawipe.jar -f /path/to/photo.jpg```
  - ***-d***: Clears every supported file formats in the given directory and its subdirectories.
@@ -34,7 +34,7 @@ Example: ```java -jar metawipe.jar -help```
 ```git clone https://github.com/kivimango/metawipe.git```
 Execute the following command in the terminal:
 ```mvn clean compile assembly:single```
-The builded jar will be in the _/target_ frolder
+The built jar will be in the _/target_ folder
 
 ### Contribution
 Contributions are welcome ! If you see errors, bugs, please open a [new Issue](https://github.com/kivimango/metawipe/issues), or send a pull request.
